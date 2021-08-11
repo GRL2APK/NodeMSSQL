@@ -58,7 +58,7 @@ router.post('/addOrder', async (req, res, next)=>{
         , Return_Mobile_No,Return_Email_ID,Return_Address
         , Return_City,Return_PIN_Code,Return_State,Item_Code
         , Item_Name, Item_Type, Item_Weight, Item_Height
-        , Item_Width, Item_Breadth, Item_Price, Item_Qty, Payment_Type} = req.query
+        , Item_Width, Item_Breadth, Item_Price, Item_Qty, Payment_Type, Remarks} = req.query
         var itemWeight = parseInt(Item_Weight)
         console.log(itemWeight)
     //"last updated on", [Record Date], [Record Time],,[Pickup Date],[Pickup Time] excluded
@@ -80,12 +80,12 @@ router.post('/addOrder', async (req, res, next)=>{
                         [Recv Email ID], [Recv Address], [Recv City],[Recv PIN Code],[Recv State],[Return To],[Return Contact Person],\
                         [Return Mobile No],[Return Email ID], [Return Address],[Return City],[Return PIN Code],[Return State],[Item Code],\
                         [Item Name], [Item Type],[Item Weight],[Item Height],[Item Width],[Item Breadth],[Item Price],[Item Qty],[Payment Type],\
-                        [Consignment Status]) VALUES ('${awb}','${date}','${time}','${Customer_Name}','${Cust_Contact_Person}',\
+                        [Consignment Status], [Remarks]) VALUES ('${awb}','${date}','${time}','${Customer_Name}','${Cust_Contact_Person}',\
                         '${Cust_Mobile_No}','${Cust_Email_ID}','${Cust_Address}', '${Cust_City}','${Cust_PIN_Code}',\
                         '${Cust_State}','${Receiver_Name}','${Recv_Contact_Person}','${Recv_Mobile_No}','${Recv_Email_ID}','${Recv_Address}',\
                         '${Recv_City}','${Recv_PIN_Code}','${Recv_State}','${Return_To}','${Return_Contact_Person}','${Return_Mobile_No}','${Return_Email_ID}',\
                         '${Return_Address}','${Return_City}','${Return_PIN_Code}', '${Return_State}', '${Item_Code}','${Item_Name}', '${Item_Type}',\
-                        ${itemWeight},'${Item_Height}','${Item_Width}','${Item_Breadth}',${Item_Price},${Item_Qty},'${Payment_Type}',N'Active')`
+                        ${itemWeight},'${Item_Height}','${Item_Width}','${Item_Breadth}',${Item_Price},${Item_Qty},'${Payment_Type}',N'Active', '${Remarks}')`
 
             let result = await pool.request()
             .query(stmt)

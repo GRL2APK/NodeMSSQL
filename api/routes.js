@@ -218,13 +218,14 @@ router.get('/track/:awb', async (req, res, next)=>{
 router.post('/update/:awb', async (req, res, next) => {
     const awb = req.params.awb
    
-    const {Customer_Name, Cust_Contact_Person, Cust_Mobile_No, Cust_Email_ID, Cust_Address, Cust_City,
+    var {Customer_Name, Cust_Contact_Person, Cust_Mobile_No, Cust_Email_ID, Cust_Address, Cust_City,
     Cust_PIN_Code, Cust_State, Receiver_Name, Recv_Contact_Person, Recv_Mobile_No, Recv_Email_ID,
     Recv_Address, Recv_City, Recv_PIN_Code, Recv_State, Return_To, Return_Contact_Person, Return_Mobile_No,
     Return_Email_ID, Return_Address, Return_City, Return_PIN_Code, Return_State, Item_Code, Item_Name, 
     Item_Type, Item_Weight, Item_Height, Item_Width, Item_Breadth, Item_Price, Payment_Type } = req.body
-
-    try {
+    console.log(Cust_Contact_Person)
+       
+   try{
         let pool = await sql.connect(config)
             var stmt = `SELECT * from TBL_Purplle where [AWB Number] = '${awb}'`
             let result = await pool.request()
@@ -232,10 +233,126 @@ router.post('/update/:awb', async (req, res, next) => {
             //var count = result.recordset[0].orders
            
             let json_result = result.recordset[0]
-            console.log(json_result['AWB Number'])
-            res.json({ message: "Data Updated successfully"})
+            if(Customer_Name == undefined)
+            {
+                Customer_Name = json_result['Customer Name']
+            }
+            if(Cust_Contact_Person == undefined) {
+                Cust_Contact_Person = json_result['Cust Contact Person']
+            }
+            if(Cust_Mobile_No == undefined) {
+                Cust_Mobile_No = json_result['Cust Mobile No']
+            }
+            if(Cust_Email_ID == undefined) {
+                Cust_Email_ID = json_result['Cust Email ID']
+            }
+            if(Cust_Address == undefined) {
+                Cust_Address = json_result['Cust Address']
+            } 
+            if(Cust_City == undefined) {
+                Cust_City = json_result['Cust City']
+            }
+            if(Cust_PIN_Code == undefined) {
+                Cust_PIN_Code = json_result['Cust PIN Code']
+            }
+            if(Cust_State == undefined){
+                Cust_State = json_result['Cust State']
+            }
+            if(Receiver_Name == undefined)
+            {
+                Receiver_Name = json_result['Receiver Name']
+            }
+            if(Recv_Contact_Person == undefined){
+                Recv_Contact_Person = json_result['Recv Contact Person']
+            }
+            if(Recv_Mobile_No == undefined){
+                Recv_Mobile_No = json_result['Recv Mobile No']
+            }
+            if(Recv_Email_ID == undefined){
+                Recv_Email_ID = json_result['Recv Email ID']
+            }
+            if(Recv_Address == undefined){
+                Recv_Address = json_result['Recv Address']
+            }
+            if(Recv_City == undefined){
+                Recv_City = json_result['Recv City']
+            }
+            if(Recv_PIN_Code == undefined){
+                Recv_PIN_Code = json_result['Recv PIN Code']
+            }
+            if(Recv_State == undefined){
+                Recv_State = json_result['Recv State']
+            }
+            if(Return_To == undefined){
+                Return_To = json_result['Return To']
+            }
+            if(Return_Mobile_No == undefined){
+                Return_Mobile_No = json_result['Return Mobile No']
+            }
+            if(Return_Email_ID == undefined){
+                Return_Email_ID = json_result['Return Email ID']
+            }
+            if(Return_Address == undefined){
+                Return_Address = json_result['Return Address']
+            }
+            if(Return_City == undefined){
+                Return_City = json_result['Return City']
+            }
+            if(Return_PIN_Code == undefined){
+                Return_PIN_Code = json_result['Return PIN Code']
+            }
+            if(Return_State == undefined){
+                Return_State = json_result['Return State']
+
+            }
+            if(Item_Code == undefined){
+                Item_Code = json_result['Item Code']
+            }
+            if(Item_Name == undefined){
+                Item_Name = json_result['Item Name']
+            }
+            if(Item_Type == undefined){
+                Item_Type = json_result['Item Type']
+            }
+            if(Item_Weight == undefined){
+                Item_Weight = parseInt(json_result['Item Weight'])
+            }
+            if(Item_Height == undefined){
+                Item_Height = json_result['Item Height']
+            }
+            if(Item_Width == undefined){
+                Item_Width = json_result['Item Width']
+            }
+            if(Item_Breadth == undefined){
+                Item_Breadth = json_result['Item Breadth']
+            }
+            if(Item_Price == undefined){
+                Item_Price = json_result['Item Price']
+            }
+            if(Payment_Type == undefined)
+            {
+                Payment_Type = json_result['Payment Type']
+            }
+            stmt = `update TBL_Purplle set [Customer Name] = '${Customer_Name}', [Cust Contact Person] = '${Cust_Contact_Person}',
+            [Cust Mobile No] = '${Cust_Mobile_No}', [Cust Email ID] = '${Cust_Email_ID}', [Cust Address] = '${Cust_Address}',
+             [Cust City] = '${Cust_City}', [Cust PIN Code] = '${Cust_PIN_Code}', [Cust State] = '${Cust_State}',
+              [Receiver Name] = '${Receiver_Name}',
+              [Recv Mobile No] = '${Recv_Mobile_No}', [Recv Contact Person] = '${Recv_Contact_Person}', 
+              [Recv Address] = '${Recv_Address}', [Recv Email ID] = '${Recv_Email_ID}',
+              [Recv City] = '${Recv_City}', [Recv PIN Code] = '${Recv_PIN_Code}', [Recv State] = '${Recv_State}', 
+              [Return To] = '${Return_To}', [Return Contact Person] = '${Return_Contact_Person}', [Return Mobile No] = '${Return_Mobile_No}', 
+              [Return Email ID] = '${Return_Email_ID}', [Return Address] = '${Return_Address}', [Return City] = '${Return_City}', 
+              [Return PIN Code] = '${Return_PIN_Code}', [Return State] = '${Return_State}', [Item Code] = '${Item_Code}', 
+              [Item Name] = '${Item_Name}', [Item Type] = '${Item_Type}', [Item Weight] = ${Item_Weight}, 
+              [Item Height] = '${Item_Height}', [Item Width] = '${Item_Width}', [Item Breadth] = '${Item_Breadth}', [Item Price] = '${Item_Price}', 
+              [Payment Type] = '${Payment_Type}' where [AWB Number] = '${awb}'`
+   
+              let updatedResult = await pool.request()
+              .query(stmt)
+            res.json({ message:"Data Updated successfully"})
 
     } catch (error) {
+        console.log(error)
         res.json({ error: error })
     }
 })

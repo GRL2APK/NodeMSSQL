@@ -124,8 +124,8 @@ router.post('/addOrder', async (req, res, next)=>{
             let result_count = await pool.request()
             .query(stmt)
             var count = result_count.recordset[0].orders
-            count++
-            var awb = "AWB"+count
+            count = count + 1000001
+            var awb = "RUH"+count
             stmt = `INSERT INTO TBL_Purplle ([AWB Number],[Record Date], [Record Time],\
                         [Customer Name],[Cust Contact Person],[Cust Mobile No],[Cust Email ID],[Cust Address],\
                         [Cust City],[Cust PIN Code],[Cust State], [Receiver Name],[Recv Contact Person],[Recv Mobile No],\
@@ -185,15 +185,32 @@ router.post('/addOrder', async (req, res, next)=>{
 router.get('/track/:awb', async (req, res, next)=>{
     try {
             const awb = req.params.awb
+            const url = req.params.url
             let pool = await sql.connect(config)
-            var stmt = `SELECT * from TBL_API_Tracking where [AWB No] = '${awb}'`
+            var stmt = `SELECT [Key ID], [AWB No], Date, Time, [Parcel Status], [Status Note] from TBL_API_Tracking where [AWB No] = '${awb}' order by [Key ID] ASC`
             let result = await pool.request()
             .query(stmt)
             //var count = result.recordset[0].orders
            
-            let json_result = result.recordset[0]
-            console.log(json_result['AWB Number'])
-            res.json(result.recordset[0])
+            let json_result = result.recordset
+            
+            json_result.forEach( data => {
+                var dt = new Date(data.Date)
+                var tt = new Date(data.Time)
+                var Str =
+                ("00" + dt.getDate()).slice(-2)
+                + "/" + ("00" + (dt.getMonth() + 1)).slice(-2)
+                + "/" + dt.getFullYear() 
+                var tstr= ("00" + tt.getHours()).slice(-2) + ":"
+                + ("00" + tt.getMinutes()).slice(-2)
+                + ":" + ("00" + tt.getSeconds()).slice(-2);
+                data.Date = Str
+                data.Time = tstr
+                //delete data['Updated By']
+            });
+
+           
+            res.json(result.recordset)
     } catch (error) {
         res.json({ error})
     }
@@ -216,7 +233,7 @@ router.post('/update/:awb', async (req, res, next) => {
            
             let json_result = result.recordset[0]
             console.log(json_result['AWB Number'])
-            res.json(result.recordset[0])
+            res.json({ message: "Data Updated successfully"})
 
     } catch (error) {
         res.json({ error: error })

@@ -1,4 +1,5 @@
 const express = require('express')
+
 const sql = require('mssql')
 const config = require('../config/config')
 const router = express.Router()
@@ -114,8 +115,29 @@ router.post('/addOrder', async (req, res, next)=>{
         , Recv_PIN_Code, Recv_State, Return_To, Return_Contact_Person
         , Return_Mobile_No,Return_Email_ID,Return_Address
         , Return_City,Return_PIN_Code,Return_State, Customer_Promise_Date, Same_Day_Delivery
-        , Order_Type, Collectible_Amount, Pickup_Type, Total_Quantity, Remarks, items, Item_Code, Item_Name, Item_Type 
-        , Item_Weight, Item_Height, Item_Width, Item_Breadth, Item_Price} = req.body
+        , Order_Type, Collectible_Amount, Pickup_Type, Total_Quantity, Remarks, items} = req.body
+        let errors = []
+        if(Customer_Name == undefined)
+        {
+            //console.log("Customer_Name is missing")
+            errors.push("Principal Client Name not provided")
+        }
+        if(Receiver_Name == undefined)
+        {
+            errors.push("Receiver_Name not provided")
+        }
+        if(Recv_Contact_Person == undefined)
+        {
+            errors.push("Contact Person Name not provided")
+        }
+        if(errors.length > 0)
+        {
+            //console.log("sending error")
+            return res.status(500).json({
+              ResponseCode: 103,  
+              errors: errors
+            })
+        }
         //var itemWeight = parseInt(Item_Weight)
         //console.log(itemWeight)
     //"last updated on", [Record Date], [Record Time],,[Pickup Date],[Pickup Time] excluded

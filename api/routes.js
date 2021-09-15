@@ -108,13 +108,13 @@ router.post('/cancel/:awb/:cancellation_reason', async (req, res, next) => {
 //     }
 // })
 router.post('/addOrder', async (req, res, next)=>{
-    const {Customer_Name, Cust_Contact_Person, Cust_Mobile_No, Cust_Email_ID, Cust_Address, Cust_City
+    const {Customer_Name, Order_Id, Cust_Contact_Person, Cust_Mobile_No, Cust_Email_ID, Cust_Address, Cust_City
         , Cust_PIN_Code, Cust_State, Receiver_Name, Recv_Contact_Person
         , Recv_Mobile_No, Recv_Email_ID, Recv_Address, Recv_City
         , Recv_PIN_Code, Recv_State, Return_To, Return_Contact_Person
         , Return_Mobile_No,Return_Email_ID,Return_Address
         , Return_City,Return_PIN_Code,Return_State, Customer_Promise_Date, Same_Day_Delivery
-        , Order_Type, Collectible_Amount, Pickup_Type, Quantity, Remarks, items, Item_Code, Item_Name, Item_Type 
+        , Order_Type, Collectible_Amount, Pickup_Type, Total_Quantity, Remarks, items, Item_Code, Item_Name, Item_Type 
         , Item_Weight, Item_Height, Item_Width, Item_Breadth, Item_Price} = req.body
         //var itemWeight = parseInt(Item_Weight)
         //console.log(itemWeight)
@@ -147,25 +147,25 @@ router.post('/addOrder', async (req, res, next)=>{
             var count = result_count.recordset[0].orders
             count = count + 1000001
             var awb = "RUH"+count
-            stmt = `INSERT INTO api_test.TBL_API_Master ([AWB Number],[Record Date], [Record Time],\
+            stmt = `INSERT INTO api_test.TBL_API_Master ([AWB Number],[Order ID],[Record Date], [Record Time],\
                         [Customer Name],[Cust Contact Person],[Cust Mobile No],[Cust Email ID],[Cust Address],\
                         [Cust City],[Cust PIN Code],[Cust State], [Receiver Name],[Recv Contact Person],[Recv Mobile No],\
                         [Recv Email ID], [Recv Address], [Recv City],[Recv PIN Code],[Recv State],[Return To],[Return Contact Person],\
                         [Return Mobile No],[Return Email ID], [Return Address],[Return City],[Return PIN Code],[Return State],[Customer Promise Date],\
-                        [Same Day Delivery], [Order Type], [Collectible Amount], [Pickup Type], [Quantity],\
-                        [Consignment Status], [Remarks], [Last Updated On]) VALUES ('${awb}', '${date}','${time}','${Customer_Name}','${Cust_Contact_Person}',\
+                        [Same Day Delivery], [Order Type], [Collectible Amount], [Pickup Type], [Total Quantity],\
+                        [Consignment Status], [Remarks], [Last Updated On]) VALUES ('${awb}', '${Order_Id}','${date}','${time}','${Customer_Name}','${Cust_Contact_Person}',\
                         '${Cust_Mobile_No}','${Cust_Email_ID}','${Cust_Address}', '${Cust_City}','${Cust_PIN_Code}',\
                         '${Cust_State}','${Receiver_Name}','${Recv_Contact_Person}','${Recv_Mobile_No}','${Recv_Email_ID}','${Recv_Address}',\
                         '${Recv_City}','${Recv_PIN_Code}','${Recv_State}','${Return_To}','${Return_Contact_Person}','${Return_Mobile_No}','${Return_Email_ID}',\
                         '${Return_Address}','${Return_City}','${Return_PIN_Code}', '${Return_State}','${Customer_Promise_Date}','${Same_Day_Delivery}',\
-                        '${Order_Type}',${Collectible_Amount},'${Pickup_Type}',${Quantity},N'Active', '${Remarks}', '${Str}')`
+                        '${Order_Type}',${Collectible_Amount},'${Pickup_Type}',${Total_Quantity},N'Active', '${Remarks}', '${Str}')`
 
             let result = await pool.request()
             .query(stmt)
-            stmt = `INSERT INTO api_test.TBL_API_Items([AWB No], [Item Code], [Item Name], [Item Type], [Height], [Length], [Width], [Weight]) VALUES`
+            stmt = `INSERT INTO api_test.TBL_API_Items([AWB No], [Item Code], [Item Name], [Item Type], [Height], [Length], [Width], [Weight], [Quantity]) VALUES`
             
             items.forEach(item => {
-                stmt = stmt + `('${awb}', '${item.item_code}', '${item.item_name}', '${item.item_type}', '${item.item_height}', '${item.item_length}', '${item.item_width}', '${item.item_weight}'),`
+                stmt = stmt + `('${awb}', '${item.item_code}', '${item.item_name}', '${item.item_type}', ${item.item_height}, ${item.item_length}, ${item.item_width}, ${item.item_weight}, ${item.item_quantity}),`
                 //console.log(item.item_code, item.item_name)
             });
             stmt = stmt.substring(0, stmt.length - 1);

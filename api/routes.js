@@ -46,6 +46,7 @@ router.post('/cancel/:awb/:cancellation_reason', async (req, res, next) => {
         if(query_res.recordset.length < 1 ){
             return res.json({
                 success: false,
+                ResponseCode: 104,
                 message: `No AWB Number found for ${awb}`
             })
         }
@@ -75,13 +76,15 @@ router.post('/cancel/:awb/:cancellation_reason', async (req, res, next) => {
         .query(stmt)
         res.json({
             success: true,
+            ResponseCode: 100,
             message: "Order Cancelled successfully",
         })
     } catch (error) {
         console.log(error)
         res.json({
             success: false,
-            message: "Internal Server Error",
+            ResponseCode: 104,
+            message: "Operation failed",
             
         })
     }
@@ -129,6 +132,82 @@ router.post('/addOrder', async (req, res, next)=>{
         if(Recv_Contact_Person == undefined)
         {
             errors.push("Contact Person Name not provided")
+        }
+        if(Recv_Mobile_No == undefined)
+        {
+            errors.push(`Receiver's Mobile No not provided`)
+        }
+        if(Recv_Email_ID == undefined)
+        {
+            errors.push(`Receiver's Email ID not provided`)
+        }
+        if(Recv_Address == undefined)
+        {
+            errors.push(`Receiver's Address not provided`)
+        }
+        if(Recv_PIN_Code == undefined)
+        {
+            errors.push(`Receiver's Addredd PIN Code not provided`)
+        }
+        if(Recv_City == undefined)
+        {
+            errors.push(`Receiver's Address City not provided`)
+        }
+        if(Recv_State == undefined)
+        {
+            errors.push(`Receiver's Addredd State Name not provided`)
+        }
+        if(Return_To == undefined)
+        {
+            errors.push(`Return To Name not provided`)
+        }
+        if(Return_Contact_Person == undefined)
+        {
+            errors.push(`Return To Contact Person Name not provided`)
+        }
+        if(Return_Mobile_No == undefined)
+        {
+            errors.push(`Return To Mobile No not provided`)
+        }
+        if(Return_Email_ID == undefined)
+        {
+            errors.push(`Return To Email ID not provided`)
+        }
+        if(Return_Address == undefined)
+        {
+            errors.push(`Return To Address not provided`)
+        }
+        if(Return_City == undefined)
+        {
+            errors.push(`Return To Address City not provided`)
+        }
+        if(Return_PIN_Code == undefined)
+        {
+            errors.push(`Return To Address PIN Code not provided`)
+        }
+        if(Return_State == undefined)
+        {
+            errors.push(`Return To Address State not provided`)
+        }
+        if(Order_Id == undefined)
+        {
+            errors.push(`Order ID not provided/ Duplicate Order ID input`)
+        }
+        if(Order_Type == undefined)
+        {
+            errors.push(`Order Type not provided`)
+        }
+        if(Collectible_Amount == undefined)
+        {
+            errors.push(`Collectible Amount not provided for COD delivery`)
+        }
+        if(Pickup_Type == undefined)
+        {
+            errors.push(`Pickup Type not provided/ Pickup Type can be only COD/Prepaid`)
+        }
+        if(Total_Quantity == undefined)
+        {
+            errors.push(`Total Quantity not provided`)
         }
         if(errors.length > 0)
         {
@@ -197,7 +276,8 @@ router.post('/addOrder', async (req, res, next)=>{
             result = await pool.request().query(stmt)
             res.json({
                         success: true,
-                        message: "Order created successfully",
+                        ResponseCode: 100,
+                        message: "Data inserted successfully",
                         awb
                     })
         
@@ -206,7 +286,8 @@ router.post('/addOrder', async (req, res, next)=>{
         console.log(error)
         return res.json({
             success: false,
-            message: "Internal Server Error",
+            ResponseCode:104,
+            message: "Operation failed",
             
         })
     }

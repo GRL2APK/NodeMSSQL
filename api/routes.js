@@ -191,11 +191,37 @@ router.post('/addOrder', async (req, res, next)=>{
         }
         if(Order_Id == undefined)
         {
-            errors.push(`Order ID not provided/ Duplicate Order ID input`)
+            errors.push(`Order ID not provided`)
         }
         if(Order_Type == undefined)
         {
             errors.push(`Order Type not provided`)
+        }
+        
+        if(Order_Type === "Prepaid")
+        {
+            if(Collectible_Amount == undefined)
+            {
+                errors.push(`Collectible Amount should be 0 for prepaid delivery`)
+            }
+            else if(Collectible_Amount > 0)
+            {
+                errors.push(`Collectible Amount should be 0 for prepaid delivery`)
+            }
+        }
+        else if(Order_Type === "COD")
+        {
+            if(Collectible_Amount == undefined)
+            {
+                errors.push(`Collectible Amount not provided for COD delivery`)
+            }
+            else if(Collectible_Amount <= 0 )
+            {
+                errors.push(`Collectible Amount must be greater than 0`)
+            }
+        }
+        else{
+            errors.push(`Order Type should be Prepaid or COD`)
         }
         if(Collectible_Amount == undefined)
         {
@@ -209,21 +235,15 @@ router.post('/addOrder', async (req, res, next)=>{
         {
             errors.push(`Total Quantity not provided`)
         }
-        if(errors.length > 0)
-        {
-            //console.log("sending error")
-            return res.status(500).json({
-              ResponseCode: 103,  
-              errors: errors
-            })
-        }
-        //var itemWeight = parseInt(Item_Weight)
-        //console.log(itemWeight)
-    //"last updated on", [Record Date], [Record Time],,[Pickup Date],[Pickup Time] excluded
-    // var date = formattedDate()
-    // var d = new Date()
-    // var time = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
-   
+        // if(errors.length > 0)
+        // {
+        //     //console.log("sending error")
+        //     return res.status(500).json({
+        //       ResponseCode: 103,  
+        //       errors: errors
+        //     })
+        // }
+      
     try {
         var dt = new Date()
             var Str =
@@ -240,12 +260,30 @@ router.post('/addOrder', async (req, res, next)=>{
         var dte = cdate.split(',')
         var time = convertTime12to24(dte[1].trim())+':00.00000'
         console.log(time)
-            //await sql.connect('mssql://api_test:Password@321@103.21.58.192/api_test')
             let pool = await sql.connect(config)
-            var stmt = "SELECT COUNT(*) orders from TBL_API_Master"
+            var stmt = `SELECT [Order ID] orderid from api_test.TBL_API_Master where [Order ID] = '${Order_Id}'`
+            let orderid = await pool.request()
+            .query(stmt)
+            if(orderid.recordset.length > 0)
+            {
+               errors.push(`Duplicate Order ID input`)
+            }
+            if(errors.length > 0)
+            {
+                //console.log("sending error")
+                return res.status(500).json({
+                ResponseCode: 103,  
+                errors: errors
+                })
+            }
+            console.log(orderid.recordset)
+            //await sql.connect('mssql://api_test:Password@321@103.21.58.192/api_test')
+             pool = await sql.connect(config)
+            var stmt = "SELECT COUNT(*) orders from api_test.TBL_API_Master"
             let result_count = await pool.request()
             .query(stmt)
             var count = result_count.recordset[0].orders
+            console.log(count)
             count = count + 1000001
             var awb = "RUH"+count
             stmt = `INSERT INTO api_test.TBL_API_Master ([AWB Number],[Order ID],[Record Date], [Record Time],\

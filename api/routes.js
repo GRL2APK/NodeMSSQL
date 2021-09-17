@@ -112,7 +112,7 @@ router.post('/cancel/:awb/:cancellation_reason', async (req, res, next) => {
 //     }
 // })
 router.post('/addOrder', async (req, res, next)=>{
-    const {Customer_Name, Order_Id, Cust_Contact_Person, Cust_Mobile_No, Cust_Email_ID, Cust_Address, Cust_City
+    const {Business_Account, Customer_Name, Order_Id, Cust_Contact_Person, Cust_Mobile_No, Cust_Email_ID, Cust_Address, Cust_City
         , Cust_PIN_Code, Cust_State, Receiver_Name, Recv_Contact_Person
         , Recv_Mobile_No, Recv_Email_ID, Recv_Address, Recv_City
         , Recv_PIN_Code, Recv_State, Return_To, Return_Contact_Person
@@ -120,10 +120,50 @@ router.post('/addOrder', async (req, res, next)=>{
         , Return_City,Return_PIN_Code,Return_State, Customer_Promise_Date, Same_Day_Delivery
         , Order_Type, Collectible_Amount, Pickup_Type, Total_Quantity, Remarks, items} = req.body
         let errors = []
+        if(Business_Account == undefined)
+        {
+            
+            errors.push("Business Account Name not provided")
+        }
         if(Customer_Name == undefined)
         {
-            //console.log("Customer_Name is missing")
+            
             errors.push("Principal Client Name not provided")
+        }
+        if(Cust_Mobile_No == undefined)
+        {
+            
+            errors.push("Customer Mobile Number not provided")
+        }
+        if(Cust_City == undefined)
+        {
+            
+            errors.push("Customer city not provided")
+        }
+        if(Cust_Address == undefined)
+        {
+            
+            errors.push("Customer Address not provided")
+        }
+        if(Cust_Contact_Person == undefined)
+        {
+            
+            errors.push("Customer Contact Person not provided")
+        }
+        if(Cust_Email_ID == undefined)
+        {
+            
+            errors.push("Customer Email ID not provided")
+        }
+        if(Cust_PIN_Code == undefined)
+        {
+            
+            errors.push("Customer PIN Code not provided")
+        }
+        if(Cust_State == undefined)
+        {
+            
+            errors.push("Customer State not provided")
         }
         if(Receiver_Name == undefined)
         {
@@ -202,18 +242,18 @@ router.post('/addOrder', async (req, res, next)=>{
         {
             if(Collectible_Amount == undefined)
             {
-                errors.push(`Collectible Amount should be 0 for prepaid delivery`)
+                errors.push(`Collectible Amount should be 0 for "Prepaid" delivery`)
             }
             else if(Collectible_Amount > 0)
             {
-                errors.push(`Collectible Amount should be 0 for prepaid delivery`)
+                errors.push(`Collectible Amount should be 0 for "Prepaid" delivery`)
             }
         }
         else if(Order_Type === "COD")
         {
             if(Collectible_Amount == undefined)
             {
-                errors.push(`Collectible Amount not provided for COD delivery`)
+                errors.push(`Collectible Amount not provided for "COD" delivery`)
             }
             else if(Collectible_Amount <= 0 )
             {
@@ -221,20 +261,29 @@ router.post('/addOrder', async (req, res, next)=>{
             }
         }
         else{
-            errors.push(`Order Type should be Prepaid or COD`)
+            errors.push(`Order Type should be "Prepaid" or "COD"`)
         }
         if(Collectible_Amount == undefined)
         {
-            errors.push(`Collectible Amount not provided for COD delivery`)
+            errors.push(`Collectible Amount not provided for "COD" delivery`)
         }
         if(Pickup_Type == undefined)
         {
-            errors.push(`Pickup Type not provided/ Pickup Type can be only COD/Prepaid`)
+            errors.push(`Pickup Type not provided`)
         }
         if(Total_Quantity == undefined)
         {
             errors.push(`Total Quantity not provided`)
         }
+        if(Same_Day_Delivery == undefined)
+        {
+            errors.push(`Same Day Delivery not provided`)
+        }
+        else if((Same_Day_Delivery !== "Yes")&&(Same_Day_Delivery !== "No"))
+        {
+            errors.push(`Same Day Delivery must be "Yes" or "No"`)
+        }
+        
         // if(errors.length > 0)
         // {
         //     //console.log("sending error")
@@ -260,6 +309,32 @@ router.post('/addOrder', async (req, res, next)=>{
         var dte = cdate.split(',')
         var time = convertTime12to24(dte[1].trim())+':00.00000'
         console.log(time)
+        try {
+            items.forEach(item => {
+                var regExp = /[a-zA-Z]/g;
+                
+                console.log(item.item_height)          
+                if(regExp.test(item.item_height)){
+                    errors.push("Item Height should be number")
+                }
+                if(regExp.test(item.item_width)){
+                    errors.push("Item Width should be number")
+                }
+                if(regExp.test(item.item_weight)){
+                    errors.push("Item Weight should be number")
+                }
+                if(regExp.test(item.item_length)){
+                    errors.push("Item Length should be number")
+                }
+                // var height = parseInt(item.item_height)
+                // var width = parseInt(item.item_width)
+                // var length = parseInt(item.item_length)
+                // var weight = parseInt(item.item_weight)
+            })
+        } catch (itemerror) {
+            console.log(itemerror)
+        }
+        
             let pool = await sql.connect(config)
             var stmt = `SELECT [Order ID] orderid from api_test.TBL_API_Master where [Order ID] = '${Order_Id}'`
             let orderid = await pool.request()
@@ -286,13 +361,13 @@ router.post('/addOrder', async (req, res, next)=>{
             console.log(count)
             count = count + 1000001
             var awb = "RUH"+count
-            stmt = `INSERT INTO api_test.TBL_API_Master ([AWB Number],[Order ID],[Record Date], [Record Time],\
+            stmt = `INSERT INTO api_test.TBL_API_Master ([Bussiness Account],[AWB Number],[Order ID],[Record Date], [Record Time],\
                         [Customer Name],[Cust Contact Person],[Cust Mobile No],[Cust Email ID],[Cust Address],\
                         [Cust City],[Cust PIN Code],[Cust State], [Receiver Name],[Recv Contact Person],[Recv Mobile No],\
                         [Recv Email ID], [Recv Address], [Recv City],[Recv PIN Code],[Recv State],[Return To],[Return Contact Person],\
                         [Return Mobile No],[Return Email ID], [Return Address],[Return City],[Return PIN Code],[Return State],[Customer Promise Date],\
                         [Same Day Delivery], [Order Type], [Collectible Amount], [Pickup Type], [Total Quantity],\
-                        [Consignment Status], [Remarks], [Last Updated On]) VALUES ('${awb}', '${Order_Id}','${date}','${time}','${Customer_Name}','${Cust_Contact_Person}',\
+                        [Consignment Status], [Remarks], [Last Updated On]) VALUES ('${Business_Account}','${awb}', '${Order_Id}','${date}','${time}','${Customer_Name}','${Cust_Contact_Person}',\
                         '${Cust_Mobile_No}','${Cust_Email_ID}','${Cust_Address}', '${Cust_City}','${Cust_PIN_Code}',\
                         '${Cust_State}','${Receiver_Name}','${Recv_Contact_Person}','${Recv_Mobile_No}','${Recv_Email_ID}','${Recv_Address}',\
                         '${Recv_City}','${Recv_PIN_Code}','${Recv_State}','${Return_To}','${Return_Contact_Person}','${Return_Mobile_No}','${Return_Email_ID}',\

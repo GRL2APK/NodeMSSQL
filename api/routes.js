@@ -112,6 +112,9 @@ router.post('/cancel/:awb/:cancellation_reason', async (req, res, next) => {
 //         console.log(error)
 //     }
 // })
+function stringContainsNumber(_string) {
+    return /\d/.test(_string);
+  }
 router.post('/addOrder', async (req, res, next)=>{
     const {Business_Account, Customer_Name, Order_Id, Cust_Contact_Person, Cust_Mobile_No, Cust_Email_ID, Cust_Address, Cust_City
         , Cust_PIN_Code, Cust_State, Receiver_Name, Recv_Contact_Person
@@ -131,6 +134,12 @@ router.post('/addOrder', async (req, res, next)=>{
         {
             
             errors.push("Principal Client Name not provided")
+        }
+        else{
+            if(stringContainsNumber(Customer_Name))
+            {
+                errors.push("Customer Name should not contain number")
+            }
         }
         if(Cust_Mobile_No == undefined || Cust_Mobile_No == '')
         {

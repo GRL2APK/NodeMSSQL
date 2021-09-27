@@ -1,6 +1,7 @@
 const express = require('express')
-
+const jwt = require('jsonwebtoken') 
 const sql = require('mssql')
+const checkAuth = require("./middleware/check-auth")
 const config = require('../config/config')
 const router = express.Router()
 function formattedDate() {
@@ -118,129 +119,208 @@ router.post('/addOrder', async (req, res, next)=>{
         , Recv_PIN_Code, Recv_State, Return_To, Return_Contact_Person
         , Return_Mobile_No,Return_Email_ID,Return_Address
         , Return_City,Return_PIN_Code,Return_State, Customer_Promise_Date, Same_Day_Delivery
-        , Order_Type, Collectible_Amount, Pickup_Type, Total_Quantity, Remarks, items} = req.body
+        , Order_Type, Collectible_Amount, Pickup_Type, Height, Weight, Width, Length, Total_Quantity, Remarks, items} = req.body
         let errors = []
-        if(Business_Account == undefined)
+        if(Business_Account == undefined || Business_Account == '')
         {
             
             errors.push("Business Account Name not provided")
         }
-        if(Customer_Name == undefined)
+        
+        if(Customer_Name == undefined || Customer_Name == '')
         {
             
             errors.push("Principal Client Name not provided")
         }
-        if(Cust_Mobile_No == undefined)
+        if(Cust_Mobile_No == undefined || Cust_Mobile_No == '')
         {
             
             errors.push("Customer Mobile Number not provided")
         }
-        if(Cust_City == undefined)
+        else{
+            var regExp = /[a-zA-Z]/g;
+       
+            if(regExp.test(Cust_Mobile_No)){
+                errors.push("Customer Mobile Number should be number")
+            }
+            else{
+                if(Cust_Mobile_No.length < 10)
+                {
+                    errors.push("Customer Mobile Number should be of 10 digits")
+                }
+            }
+        }
+        if(Cust_City == undefined || Cust_City == '')
         {
             
             errors.push("Customer city not provided")
         }
-        if(Cust_Address == undefined)
+        if(Cust_Address == undefined || Cust_Address == '')
         {
             
             errors.push("Customer Address not provided")
         }
-        if(Cust_Contact_Person == undefined)
+        if(Cust_Contact_Person == undefined || Cust_Contact_Person == '')
         {
             
             errors.push("Customer Contact Person not provided")
         }
-        if(Cust_Email_ID == undefined)
+        if(Cust_Email_ID == undefined || Cust_Email_ID == '')
         {
             
             errors.push("Customer Email ID not provided")
         }
-        if(Cust_PIN_Code == undefined)
+        if(Cust_PIN_Code == undefined || Cust_PIN_Code == '')
         {
             
             errors.push("Customer PIN Code not provided")
         }
-        if(Cust_State == undefined)
+        else{
+            var regExp = /[a-zA-Z]/g;
+       
+            if(regExp.test(Cust_PIN_Code)){
+                errors.push("Customer PIN Code should be number")
+            }
+            else{
+                if(Cust_PIN_Code.length < 6)
+                {
+                    errors.push("Customer PIN Code should be of 6 digits")
+                }
+            }
+        }
+        if(Cust_State == undefined || Cust_State == '')
         {
             
             errors.push("Customer State not provided")
         }
-        if(Receiver_Name == undefined)
+        if(Receiver_Name == undefined || Receiver_Name == '')
         {
             errors.push("Receiver_Name not provided")
         }
-        if(Recv_Contact_Person == undefined)
+        if(Recv_Contact_Person == undefined || Recv_Contact_Person == '')
         {
             errors.push("Contact Person Name not provided")
         }
-        if(Recv_Mobile_No == undefined)
+        if(Recv_Mobile_No == undefined || Recv_Mobile_No == '')
         {
             errors.push(`Receiver's Mobile No not provided`)
         }
-        if(Recv_Email_ID == undefined)
+        else{
+            var regExp = /[a-zA-Z]/g;
+       
+            if(regExp.test(Recv_Mobile_No)){
+                errors.push("Receiver Mobile Number should be number")
+            }
+            else{
+                if(Recv_Mobile_No.length < 10)
+                {
+                    errors.push("Receiver Mobile Number should be of 10 digits")
+                }
+            }
+        }
+        if(Recv_Email_ID == undefined || Recv_Email_ID == '')
         {
             errors.push(`Receiver's Email ID not provided`)
         }
-        if(Recv_Address == undefined)
+        if(Recv_Address == undefined || Recv_Address == '')
         {
             errors.push(`Receiver's Address not provided`)
         }
-        if(Recv_PIN_Code == undefined)
+        if(Recv_PIN_Code == undefined || Recv_PIN_Code == '')
         {
             errors.push(`Receiver's Addredd PIN Code not provided`)
         }
-        if(Recv_City == undefined)
+        else{
+            var regExp = /[a-zA-Z]/g;
+       
+            if(regExp.test(Recv_PIN_Code)){
+                errors.push("Receiver PIN Code should be number")
+            }
+            else{
+                if(Recv_PIN_Code.length < 6)
+                {
+                    errors.push("Receiver PIN Code should be of 6 digits")
+                }
+            }
+        }
+        if(Recv_City == undefined || Recv_City == '')
         {
             errors.push(`Receiver's Address City not provided`)
         }
-        if(Recv_State == undefined)
+        if(Recv_State == undefined || Recv_State == '')
         {
             errors.push(`Receiver's Addredd State Name not provided`)
         }
-        if(Return_To == undefined)
+        if(Return_To == undefined || Return_To == '')
         {
             errors.push(`Return To Name not provided`)
         }
-        if(Return_Contact_Person == undefined)
+        if(Return_Contact_Person == undefined || Return_Contact_Person == '')
         {
             errors.push(`Return To Contact Person Name not provided`)
         }
-        if(Return_Mobile_No == undefined)
+        if(Return_Mobile_No == undefined || Return_Mobile_No == '')
         {
             errors.push(`Return To Mobile No not provided`)
         }
-        if(Return_Email_ID == undefined)
+        else{
+            var regExp = /[a-zA-Z]/g;
+       
+            if(regExp.test(Return_Mobile_No)){
+                errors.push("Return To Mobile Number should be number")
+            }
+            else{
+                if(Return_Mobile_No.length < 10)
+                {
+                    errors.push("Return To Mobile Number should be of 10 digits")
+                }
+            }
+        }
+        if(Return_Email_ID == undefined || Return_Email_ID == '')
         {
             errors.push(`Return To Email ID not provided`)
         }
-        if(Return_Address == undefined)
+        if(Return_Address == undefined || Return_Address == '')
         {
             errors.push(`Return To Address not provided`)
         }
-        if(Return_City == undefined)
+        if(Return_City == undefined || Return_City == '')
         {
             errors.push(`Return To Address City not provided`)
         }
-        if(Return_PIN_Code == undefined)
+        if(Return_PIN_Code == undefined || Return_PIN_Code == '')
         {
             errors.push(`Return To Address PIN Code not provided`)
         }
-        if(Return_State == undefined)
+        else{
+            var regExp = /[a-zA-Z]/g;
+       
+            if(regExp.test(Return_PIN_Code)){
+                errors.push("Return To PIN Code should be number")
+            }
+            else{
+                if(Return_PIN_Code.length < 6)
+                {
+                    errors.push("Return To PIN Code should be of 6 digits")
+                }
+            }
+        }
+        if(Return_State == undefined || Return_State == '')
         {
             errors.push(`Return To Address State not provided`)
         }
-        if(Order_Id == undefined)
+        if(Order_Id == undefined || Order_Id == '')
         {
             errors.push(`Order ID not provided`)
         }
-        if(Order_Type == undefined)
+        if(Order_Type == undefined || Order_Type == '')
         {
             errors.push(`Order Type not provided`)
         }
         
         if(Order_Type === "Prepaid")
         {
-            if(Collectible_Amount == undefined)
+            if(Collectible_Amount == undefined || Collectorible_Amount == '')
             {
                 errors.push(`Collectible Amount should be 0 for "Prepaid" delivery`)
             }
@@ -263,26 +343,65 @@ router.post('/addOrder', async (req, res, next)=>{
         else{
             errors.push(`Order Type should be "Prepaid" or "COD"`)
         }
-        if(Collectible_Amount == undefined)
+        if(Collectible_Amount == undefined || Collectible_Amount == '')
         {
             errors.push(`Collectible Amount not provided for "COD" delivery`)
         }
-        if(Pickup_Type == undefined)
+        if(Pickup_Type == undefined || Pickup_Type == '')
         {
             errors.push(`Pickup Type not provided`)
         }
-        if(Total_Quantity == undefined)
+        if(Total_Quantity == undefined || Total_Quantity == '')
         {
             errors.push(`Total Quantity not provided`)
         }
-        if(Same_Day_Delivery == undefined)
+        var regExp = /[a-zA-Z]/g;
+        var stat = 0
+        if(Height == undefined || Height == '' || Width == undefined || Width == '' || Weight == undefined || Weight == '' || Length == undefined || Length == ''){
+            stat = 1
+        }       
+        if(stat == 0)
         {
-            errors.push(`Same Day Delivery not provided`)
+            if(regExp.test(Height)){
+                errors.push("Item Height should be number")
+            }
+            if(regExp.test(Width)){
+                errors.push("Item Width should be number")
+            }
+            if(regExp.test(Weight)){
+                errors.push("Item Weight should be number")
+            }
+            if(regExp.test(Length)){
+                errors.push("Item Length should be number")
+            }
         }
-        else if((Same_Day_Delivery !== "Yes")&&(Same_Day_Delivery !== "No"))
-        {
-            errors.push(`Same Day Delivery must be "Yes" or "No"`)
-        }
+        else{
+            if(Height == undefined || Height == '')
+            {
+                errors.push("Item Height is not provided")
+            }
+            if(Weight == undefined || Weight == '')
+            {
+                errors.push("Item Weight is not provided")
+            }
+            if(Length == undefined || Length == '')
+            {
+                errors.push("Item Length is not provided")
+            }
+            if(Width == undefined || Width == '')
+            {
+                errors.push("Item Width is not provided")
+            }
+        }          
+        
+        // if(Same_Day_Delivery == undefined)
+        // {
+        //     errors.push(`Same Day Delivery not provided`)
+        // }
+        // else if((Same_Day_Delivery !== "Yes")&&(Same_Day_Delivery !== "No"))
+        // {
+        //     errors.push(`Same Day Delivery must be "Yes" or "No"`)
+        // }
         
         // if(errors.length > 0)
         // {
@@ -311,21 +430,13 @@ router.post('/addOrder', async (req, res, next)=>{
         console.log(time)
         try {
             items.forEach(item => {
-                var regExp = /[a-zA-Z]/g;
-                
-                console.log(item.item_height)          
-                if(regExp.test(item.item_height)){
-                    errors.push("Item Height should be number")
-                }
-                if(regExp.test(item.item_width)){
-                    errors.push("Item Width should be number")
-                }
-                if(regExp.test(item.item_weight)){
-                    errors.push("Item Weight should be number")
-                }
-                if(regExp.test(item.item_length)){
-                    errors.push("Item Length should be number")
-                }
+               if(item.status != 'Active') {
+                   if(item.status == 'Cancelled')
+                   {
+                    errors.push("Item Status should be Active or Cancelled")
+                   }
+               }
+               
                 // var height = parseInt(item.item_height)
                 // var width = parseInt(item.item_width)
                 // var length = parseInt(item.item_length)
@@ -351,6 +462,9 @@ router.post('/addOrder', async (req, res, next)=>{
                 errors: errors
                 })
             }
+// emptiness check
+           
+
             console.log(orderid.recordset)
             //await sql.connect('mssql://api_test:Password@321@103.21.58.192/api_test')
              pool = await sql.connect(config)
@@ -361,25 +475,25 @@ router.post('/addOrder', async (req, res, next)=>{
             console.log(count)
             count = count + 1000001
             var awb = "RUH"+count
-            stmt = `INSERT INTO api_test.TBL_API_Master ([Bussiness Account],[AWB Number],[Order ID],[Record Date], [Record Time],\
+            stmt = `INSERT INTO api_test.TBL_API_Master ([Business Account],[AWB Number],[Order ID],[Record Date], [Record Time],\
                         [Customer Name],[Cust Contact Person],[Cust Mobile No],[Cust Email ID],[Cust Address],\
                         [Cust City],[Cust PIN Code],[Cust State], [Receiver Name],[Recv Contact Person],[Recv Mobile No],\
                         [Recv Email ID], [Recv Address], [Recv City],[Recv PIN Code],[Recv State],[Return To],[Return Contact Person],\
-                        [Return Mobile No],[Return Email ID], [Return Address],[Return City],[Return PIN Code],[Return State],[Customer Promise Date],\
-                        [Same Day Delivery], [Order Type], [Collectible Amount], [Pickup Type], [Total Quantity],\
+                        [Return Mobile No],[Return Email ID], [Return Address],[Return City],[Return PIN Code],[Return State],\
+                        [Order Type], [Collectible Amount], [Pickup Type], [Height], [Length], [Width], [Weight], [Total Quantity],\
                         [Consignment Status], [Remarks], [Last Updated On]) VALUES ('${Business_Account}','${awb}', '${Order_Id}','${date}','${time}','${Customer_Name}','${Cust_Contact_Person}',\
                         '${Cust_Mobile_No}','${Cust_Email_ID}','${Cust_Address}', '${Cust_City}','${Cust_PIN_Code}',\
                         '${Cust_State}','${Receiver_Name}','${Recv_Contact_Person}','${Recv_Mobile_No}','${Recv_Email_ID}','${Recv_Address}',\
                         '${Recv_City}','${Recv_PIN_Code}','${Recv_State}','${Return_To}','${Return_Contact_Person}','${Return_Mobile_No}','${Return_Email_ID}',\
-                        '${Return_Address}','${Return_City}','${Return_PIN_Code}', '${Return_State}','${Customer_Promise_Date}','${Same_Day_Delivery}',\
-                        '${Order_Type}',${Collectible_Amount},'${Pickup_Type}',${Total_Quantity},N'Active', '${Remarks}', '${Str}')`
+                        '${Return_Address}','${Return_City}','${Return_PIN_Code}', '${Return_State}',\
+                        '${Order_Type}',${Collectible_Amount},'${Pickup_Type}',${Height}, ${Length}, ${Width}, ${Weight}, ${Total_Quantity},N'Active', '${Remarks}', '${Str}')`
 
             let result = await pool.request()
             .query(stmt)
-            stmt = `INSERT INTO api_test.TBL_API_Items([AWB No], [Item Code], [Item Name], [Item Type], [Height], [Length], [Width], [Weight], [Quantity]) VALUES`
+            stmt = `INSERT INTO api_test.TBL_API_Items([AWB No], [Item Code], [Item Name], [Item Type], [Quantity], [Status]) VALUES`
             
             items.forEach(item => {
-                stmt = stmt + `('${awb}', '${item.item_code}', '${item.item_name}', '${item.item_type}', ${item.item_height}, ${item.item_length}, ${item.item_width}, ${item.item_weight}, ${item.item_quantity}),`
+                stmt = stmt + `('${awb}', '${item.item_code}', '${item.item_name}', '${item.item_type}', ${item.item_quantity}, '${item.status}'),`
                 //console.log(item.item_code, item.item_name)
             });
             stmt = stmt.substring(0, stmt.length - 1);
@@ -577,6 +691,52 @@ router.post('/update/:awb', async (req, res, next) => {
     } catch (error) {
         console.log(error)
         res.json({ error: error })
+    }
+})
+
+
+// login
+router.get('/login', async (req, res, next)=>{
+    const {username, password} = req.body
+    try {
+        let pool = await sql.connect(config)
+        var stmt = `SELECT [User ID] user from api_test.TBL_USER where [User ID] = '${username}' AND [Password] = '${password}'`
+        let user = await pool.request()
+        .query(stmt)
+       
+        if(user.recordset.length < 1)
+        {
+            return res.json({
+                success: false,
+                ResponseCode:404,
+                message: "Invalid User ID or Password",
+                
+            })
+        }
+        let json_result = user.recordset[0]
+        const token = jwt.sign({
+            
+                userid: json_result['User ID']
+            },
+            process.env.JWT_KEY,
+            {
+                expiresIn: "1y"
+            }
+    
+        ) 
+    return res.status(200).json({
+        message: "Login Successful",
+        token: token,
+        ResponseCode:200
+    })
+
+    } catch (error) {
+        return res.json({
+            success: false,
+            ResponseCode:104,
+            message: "Operation failed",
+            
+        })
     }
 })
 router.get('/fetch',async (req, res, next)=>{

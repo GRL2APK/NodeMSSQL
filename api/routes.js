@@ -136,8 +136,13 @@ router.post('/addOrder', async (req, res, next)=>{
             errors.push("Principal Client Name not provided")
         }
         else{
-            if(stringContainsNumber(Customer_Name))
+            var regExp = /[a-zA-Z]/g;
+            var s = 0
+            if(regExp.test(Customer_Name))
             {
+                s = 1
+            }
+            else{
                 errors.push("Customer Name should not contain number")
             }
         }
@@ -195,6 +200,10 @@ router.post('/addOrder', async (req, res, next)=>{
                 {
                     errors.push("Customer PIN Code should be of 6 digits")
                 }
+                else if(Cust_PIN_Code.length > 6)
+                {
+                    errors.push("Customer PIN Code should be of 6 digits")
+                }
             }
         }
         if(Cust_State == undefined || Cust_State == '')
@@ -247,6 +256,10 @@ router.post('/addOrder', async (req, res, next)=>{
             }
             else{
                 if(Recv_PIN_Code.length < 6)
+                {
+                    errors.push("Receiver PIN Code should be of 6 digits")
+                }
+                else if(Recv_PIN_Code.length > 6)
                 {
                     errors.push("Receiver PIN Code should be of 6 digits")
                 }
@@ -309,6 +322,10 @@ router.post('/addOrder', async (req, res, next)=>{
             }
             else{
                 if(Return_PIN_Code.length < 6)
+                {
+                    errors.push("Return To PIN Code should be of 6 digits")
+                }
+                else if(Return_PIN_Code.length > 6)
                 {
                     errors.push("Return To PIN Code should be of 6 digits")
                 }
@@ -403,23 +420,15 @@ router.post('/addOrder', async (req, res, next)=>{
             }
         }          
         
-        // if(Same_Day_Delivery == undefined)
-        // {
-        //     errors.push(`Same Day Delivery not provided`)
-        // }
-        // else if((Same_Day_Delivery !== "Yes")&&(Same_Day_Delivery !== "No"))
-        // {
-        //     errors.push(`Same Day Delivery must be "Yes" or "No"`)
-        // }
+        if(Same_Day_Delivery == undefined || Same_Day_Delivery == '')
+        {
+            errors.push(`Same Day Delivery not provided`)
+        }
+        else if((Same_Day_Delivery !== "Yes")&&(Same_Day_Delivery !== "No") &&(Same_Day_Delivery !== 'NA'))
+        {
+            errors.push(`Same Day Delivery must be "Yes", "No" or "NA"`)
+        }
         
-        // if(errors.length > 0)
-        // {
-        //     //console.log("sending error")
-        //     return res.status(500).json({
-        //       ResponseCode: 103,  
-        //       errors: errors
-        //     })
-        // }
       
     try {
         var dt = new Date()

@@ -124,6 +124,11 @@ router.post('/addOrder', async (req, res, next)=>{
         , Return_City,Return_PIN_Code,Return_State, Customer_Promise_Date, Same_Day_Delivery
         , Order_Type, Collectible_Amount, Pickup_Type, Height, Weight, Width, Length, Total_Quantity, Remarks, items} = req.body
         let errors = []
+        var regExp = /[a-zA-Z]/g;
+       
+            if(regExp.test(Collectible_Amount)){
+                errors.push("Collectible Amount should be number")
+            }
         if(Business_Account == undefined || Business_Account == '')
         {
             
@@ -343,19 +348,20 @@ router.post('/addOrder', async (req, res, next)=>{
         {
             errors.push(`Order Type not provided`)
         }
-        
+       
         if(Order_Type === "Prepaid")
         {
-            if(Collectible_Amount == undefined || Collectorible_Amount == '')
+           
+            if(Collectible_Amount === undefined || Collectible_Amount === '')
             {
                 errors.push(`Collectible Amount should be 0 for "Prepaid" delivery`)
             }
-            else if(Collectible_Amount > 0)
+            else if(Collectible_Amount != 0)
             {
                 errors.push(`Collectible Amount should be 0 for "Prepaid" delivery`)
             }
         }
-        else if(Order_Type === "COD")
+        if(Order_Type === "COD")
         {
             if(Collectible_Amount == undefined)
             {
@@ -366,13 +372,13 @@ router.post('/addOrder', async (req, res, next)=>{
                 errors.push(`Collectible Amount must be greater than 0`)
             }
         }
-        else{
+        if(Order_Type != "Prepaid" && Order_Type != "COD"){
             errors.push(`Order Type should be "Prepaid" or "COD"`)
         }
-        if(Collectible_Amount == undefined || Collectible_Amount == '')
-        {
-            errors.push(`Collectible Amount not provided for "COD" delivery`)
-        }
+        // if(Collectible_Amount == undefined || Collectible_Amount == '')
+        // {
+        //     errors.push(`hi Collectible Amount not provided for "COD" delivery`)
+        // }
         if(Pickup_Type == undefined || Pickup_Type == '')
         {
             errors.push(`Pickup Type not provided`)
